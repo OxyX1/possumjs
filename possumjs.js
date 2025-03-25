@@ -18,16 +18,17 @@ const possumjs = () => {
     window.imports = function(file) {
         const filePath = file.replace(/\./g, '/'); // Convert "js.testing" to "js/testing"
         
-        return import(`./${filePath}.js`) // Ensure relative path
+        return import(`./${filePath}.js`) // Ensure relative import path
             .then(module => {
                 console.log(`Successfully imported: ${filePath}`);
-                return module; // Return the module so it can be used
+                return module; // Return the module so the caller can use it
             })
             .catch(error => {
                 console.error(`Failed to import ${filePath}:`, error);
             });
     };
 };
+
 
 
 /*
