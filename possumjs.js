@@ -16,19 +16,19 @@ to this plugin.
 
 const possumjs = () => {
     window.imports = function(file) {
-        // Replace "." with "/" in the file path
-        const filePath = file.replace(/\./g, '/');
-
-        // dynamically import the javascript file
-        import(filePath + '.js')
+        const filePath = file.replace(/\./g, '/'); // Convert "js.testing" to "js/testing"
+        
+        return import(`./${filePath}.js`) // Ensure relative path
             .then(module => {
                 console.log(`Successfully imported: ${filePath}`);
+                return module; // Return the module so it can be used
             })
             .catch(error => {
                 console.error(`Failed to import ${filePath}:`, error);
             });
     };
 };
+
 
 /*
 
