@@ -32,6 +32,7 @@ const possum2d = () => {
   
     // Function to render a sprite
     const render = (sprite) => {
+      if (!sprite) return;
       ctx.fillStyle = sprite.color || 'red'; // Default color is red
       ctx.fillRect(sprite.x, sprite.y, sprite.width, sprite.height);
     };
