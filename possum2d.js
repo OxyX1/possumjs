@@ -1,107 +1,92 @@
-/* 
-
-possum 2d is a GUI-based plugin that is like p5.js but easier to use.
-Things like sprites, which is an easier way to write functions, for example:
-
-if (sprite1 == touching(sprite2)) {
-    continue;
-}
-
-*/
-
 const possum2d = () => {
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    document.body.appendChild(canvas);  // Ensure the canvas is appended to the DOM
-  
-    const createCanvas = (width, height, fullscreen = false) => {
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  document.body.appendChild(canvas);
+
+  let fullscreen = false;
+
+  const updateCanvasSize = () => {
+      if (fullscreen) {
+          canvas.width = window.innerWidth;
+          canvas.height = window.innerHeight;
+      }
+  };
+
+  const createCanvas = (width, height, full = false) => {
+      fullscreen = full;
       if (!fullscreen) {
-        canvas.width = width;
-        canvas.height = height;
+          canvas.width = width;
+          canvas.height = height;
       } else {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+          updateCanvasSize(); // Ensure it's updated immediately
+          window.addEventListener("resize", updateCanvasSize); // Listen for window resizes
       }
-    };
-  
-    const setTitle = (_title) => {
+  };
+
+  const setTitle = (_title) => {
       document.title = _title;
-    };
+  };
 
-    const setBackgroundColor = (_color) => {
+  const setBackgroundColor = (_color) => {
       ctx.fillStyle = _color;
-      ctx.clearRect(0, 0, canvas.width, canvas.height); // Clears the entire canvas
-      ctx.fillRect(0, 0, canvas.width, canvas.height); // Fills the canvas with the specified color
-    };
-    
-  
-    // Function to render a sprite
-    const render = (sprite) => {
-      ctx.fillStyle = sprite.color || 'red'; // Default color is red
-      ctx.fillRect(sprite.x, sprite.y, sprite.width, sprite.height);
-    };
-  
-    const touching = (sprite1, sprite2) => {
-      // Simple collision detection between two sprites
-      if (
-        sprite1.x < sprite2.x + sprite2.width &&
-        sprite1.x + sprite1.width > sprite2.x &&
-        sprite1.y < sprite2.y + sprite2.height &&
-        sprite1.y + sprite1.height > sprite2.y
-      ) {
-        return true;
-      }
-      return false;
-    };
-  
-    // Run the setup once and then enter the draw loop
-    let setupDone = false;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+  };
 
-    const run = () => {
+  const render = (sprite) => {
+      ctx.fillStyle = sprite.color || 'red';
+      ctx.fillRect(sprite.x, sprite.y, sprite.width, sprite.height);
+  };
+
+  const touching = (sprite1, sprite2) => {
+      return (
+          sprite1.x < sprite2.x + sprite2.width &&
+          sprite1.x + sprite1.width > sprite2.x &&
+          sprite1.y < sprite2.y + sprite2.height &&
+          sprite1.y + sprite1.height > sprite2.y
+      );
+  };
+
+  let setupDone = false;
+
+  const run = () => {
       if (!setupDone && typeof setup === 'function') {
-        setup(); // Call setup() once
-        setupDone = true;
+          setup();
+          setupDone = true;
       }
-  
+
       if (typeof draw === 'function') {
-        draw(); // Continuously call draw() (or render in this case)
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          draw();
       }
-  
-      requestAnimationFrame(run); // Keep looping draw
-    };
-  
-    return {
+
+      requestAnimationFrame(run);
+  };
+
+  return {
       createCanvas,
       setTitle,
       render,
       touching,
-      run, // Added to start the loop
+      run,
       setBackgroundColor
-    };
   };
-  
-  // Usage Example
-  
+};
 
-  /*
-  
-  const game = possum2d();
-  
-  function setup() {
-    game.setTitle("Possum 2D Game");
-    game.createCanvas(800, 600);
-    game.setBackgroundColor("blue");
-  }
-  
-  const sprite1 = { x: 50, y: 50, width: 50, height: 50, color: 'blue' };
-  const sprite2 = { x: 100, y: 100, width: 50, height: 50, color: 'green' };
-  
-  function draw() {
-    game.render(sprite1);
-    game.render(sprite2);
-  }
+// Example Usage
+const game = possum2d();
 
-  game.run();
-  
-  
-  */
+function setup() {
+  game.setTitle("Possum 2D Game");
+  game.createCanvas(800, 600, true); // Fullscreen mode
+  game.setBackgroundColor("blue");
+}
+
+const sprite1 = { x: 50, y: 50, width: 50, height: 50, color: 'blue' };
+const sprite2 = { x: 100, y: 100, width: 50, height: 50, color: 'green' };
+
+function draw() {
+  game.render(sprite1);
+  game.render(sprite2);
+}
+
+game.run();
