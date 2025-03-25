@@ -5,6 +5,8 @@ const possum2d = () => {
 
   let fullscreen = false;
   let backgroundColor = "white"; // Default background color
+  let keyboardState = {}; // Keyboard state tracking
+  let lastTime = 0; // To calculate delta time (dt)
 
   const updateCanvasSize = () => {
       if (fullscreen) {
@@ -29,7 +31,7 @@ const possum2d = () => {
   };
 
   const setBackgroundColor = (_color) => {
-      backgroundColor = _color; // Store color for continuous use
+      backgroundColor = _color;
   };
 
   const render = (sprite) => {
@@ -46,32 +48,49 @@ const possum2d = () => {
       );
   };
 
-  let setupDone = false;
+  const move = (sprite, dx, dy, dt) => {
+      // Update sprite's position based on dx, dy, and delta time (dt)
+      sprite.x += dx * sprite.speed * dt;
+      sprite.y += dy * sprite.speed * dt;
+  };
 
-  const run = () => {
-      if (!setupDone && typeof setup === 'function') {
-          setup();
-          setupDone = true;
-      }
+  const moveg = (sprite, dx, dy) => {
+      // For general movement (non-delta-time-based)
+      sprite.x += dx * sprite.speed;
+      sprite.y += dy * sprite.speed;
+  };
 
-      // Clear canvas and set background color every frame
+  const run = (timestamp) => {
+      const dt = (timestamp - lastTime) / 1000;  // Calculate delta time in seconds
+      lastTime = timestamp;
+
       ctx.fillStyle = backgroundColor;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       if (typeof draw === 'function') {
-          draw();
+          draw(dt); // Pass dt to the draw function
       }
 
       requestAnimationFrame(run);
   };
+
+  // Key state tracking for WASD/Arrow keys
+  window.addEventListener('keydown', (event) => {
+      keyboardState[event.key] = true;
+  });
+
+  window.addEventListener('keyup', (event) => {
+      keyboardState[event.key] = false;
+  });
 
   return {
       createCanvas,
       setTitle,
       render,
       touching,
-      run,
-      setBackgroundColor
+      move,
+      moveg,
+      setBackgroundColor,
+      run
   };
 };
-
