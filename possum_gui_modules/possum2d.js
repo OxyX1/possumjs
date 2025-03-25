@@ -4,9 +4,9 @@ const possum2d = () => {
   document.body.appendChild(canvas);
 
   let fullscreen = false;
-  let backgroundColor = "white"; // Default background color
-  let keyboardState = {}; // Keyboard state tracking
-  let lastTime = 0; // To calculate delta time (dt)
+  let backgroundColor = "white";
+  let keyboardState = {};
+  let lastTime = 0;
 
   const updateCanvasSize = () => {
       if (fullscreen) {
@@ -49,32 +49,29 @@ const possum2d = () => {
   };
 
   const move = (sprite, dx, dy, dt) => {
-      // Update sprite's position based on dx, dy, and delta time (dt)
       sprite.x += dx * sprite.speed * dt;
       sprite.y += dy * sprite.speed * dt;
   };
 
   const moveg = (sprite, dx, dy) => {
-      // For general movement (non-delta-time-based)
       sprite.x += dx * sprite.speed;
       sprite.y += dy * sprite.speed;
   };
 
   const run = (timestamp) => {
-      const dt = (timestamp - lastTime) / 1000;  // Calculate delta time in seconds
+      const dt = (timestamp - lastTime) / 1000;
       lastTime = timestamp;
 
       ctx.fillStyle = backgroundColor;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       if (typeof draw === 'function') {
-          draw(dt); // Pass dt to the draw function
+          draw(dt);
       }
 
       requestAnimationFrame(run);
   };
 
-  // Key state tracking for WASD/Arrow keys
   window.addEventListener('keydown', (event) => {
       keyboardState[event.key] = true;
   });
