@@ -71,22 +71,3 @@ const possum2d = () => {
       setBackgroundColor
   };
 };
-
-// Example Usage
-const game = possum2d();
-
-function setup() {
-  game.setTitle("Possum 2D Game");
-  game.createCanvas(800, 600, true); // Fullscreen mode
-  game.setBackgroundColor("blue");
-}
-
-const sprite1 = { x: 50, y: 50, width: 50, height: 50, color: 'blue' };
-const sprite2 = { x: 100, y: 100, width: 50, height: 50, color: 'green' };
-
-function draw() {
-  game.render(sprite1);
-  game.render(sprite2);
-}
-
-game.run();
