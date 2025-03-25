@@ -19,10 +19,8 @@ const possum2d = () => {
         canvas.width = width;
         canvas.height = height;
       } else {
-        setInterval(() => {
-          canvas.width = window.innerWidth;
-          canvas.height = window.innerHeight;
-        }, 1);
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
       }
     };
   
