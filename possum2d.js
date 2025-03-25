@@ -10,70 +10,100 @@ if (sprite1 == touching(sprite2)) {
 */
 
 const possum2d = () => {
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
-  document.body.appendChild(canvas);
-
-  let fullscreen = false;
-
-  const createCanvas = (width, height, full = false) => {
-      fullscreen = full;
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    document.body.appendChild(canvas);  // Ensure the canvas is appended to the DOM
+  
+    const createCanvas = (width, height, fullscreen = false) => {
       if (!fullscreen) {
-          canvas.width = width;
-          canvas.height = height;
-      }
-  };
-
-  const setTitle = (_title) => {
-      document.title = _title;
-  };
-
-  const setBackgroundColor = (_color) => {
-      ctx.fillStyle = _color;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-  };
-
-  const render = (sprite) => {
-      ctx.fillStyle = sprite.color || 'red';
-      ctx.fillRect(sprite.x, sprite.y, sprite.width, sprite.height);
-  };
-
-  const touching = (sprite1, sprite2) => {
-      return (
-          sprite1.x < sprite2.x + sprite2.width &&
-          sprite1.x + sprite1.width > sprite2.x &&
-          sprite1.y < sprite2.y + sprite2.height &&
-          sprite1.y + sprite1.height > sprite2.y
-      );
-  };
-
-  let setupDone = false;
-
-  const run = () => {
-      if (fullscreen) {
+        canvas.width = width;
+        canvas.height = height;
+      } else {
+        setInterval(() => {
           canvas.width = window.innerWidth;
           canvas.height = window.innerHeight;
+        }, 1);
       }
+    };
+  
+    const setTitle = (_title) => {
+      document.title = _title;
+    };
 
+    const setBackgroundColor = (_color) => {
+      ctx.fillStyle = _color;
+      ctx.clearRect(0, 0, canvas.width, canvas.height); // Clears the entire canvas
+      ctx.fillRect(0, 0, canvas.width, canvas.height); // Fills the canvas with the specified color
+    };
+    
+  
+    // Function to render a sprite
+    const render = (sprite) => {
+      ctx.fillStyle = sprite.color || 'red'; // Default color is red
+      ctx.fillRect(sprite.x, sprite.y, sprite.width, sprite.height);
+    };
+  
+    const touching = (sprite1, sprite2) => {
+      // Simple collision detection between two sprites
+      if (
+        sprite1.x < sprite2.x + sprite2.width &&
+        sprite1.x + sprite1.width > sprite2.x &&
+        sprite1.y < sprite2.y + sprite2.height &&
+        sprite1.y + sprite1.height > sprite2.y
+      ) {
+        return true;
+      }
+      return false;
+    };
+  
+    // Run the setup once and then enter the draw loop
+    let setupDone = false;
+
+    const run = () => {
       if (!setupDone && typeof setup === 'function') {
-          setup();
-          setupDone = true;
+        setup(); // Call setup() once
+        setupDone = true;
       }
-
+  
       if (typeof draw === 'function') {
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-          draw();
+        draw(); // Continuously call draw() (or render in this case)
       }
-
-      requestAnimationFrame(run);
-  };
-
-  return {
+  
+      requestAnimationFrame(run); // Keep looping draw
+    };
+  
+    return {
       createCanvas,
       setTitle,
       render,
       touching,
-      run,
+      run, // Added to start the loop
       setBackgroundColor
+    };
   };
-};
+  
+  // Usage Example
+  
+
+  /*
+  
+  const game = possum2d();
+  
+  function setup() {
+    game.setTitle("Possum 2D Game");
+    game.createCanvas(800, 600);
+    game.setBackgroundColor("blue");
+  }
+  
+  const sprite1 = { x: 50, y: 50, width: 50, height: 50, color: 'blue' };
+  const sprite2 = { x: 100, y: 100, width: 50, height: 50, color: 'green' };
+  
+  function draw() {
+    game.render(sprite1);
+    game.render(sprite2);
+  }
+
+  game.run();
+  
+  
+  */
