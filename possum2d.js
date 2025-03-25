@@ -27,6 +27,11 @@ const possum2d = () => {
     const setTitle = (_title) => {
       document.title = _title;
     };
+
+    const setBackgroundColor = (_color) => {
+      ctx.fillStyle = _color;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
   
     // Function to render a sprite
     const render = (sprite) => {
@@ -49,7 +54,7 @@ const possum2d = () => {
   
     // Run the setup once and then enter the draw loop
     let setupDone = false;
-  
+
     const run = () => {
       if (!setupDone && typeof setup === 'function') {
         setup(); // Call setup() once
@@ -69,6 +74,7 @@ const possum2d = () => {
       render,
       touching,
       run, // Added to start the loop
+      setBackgroundColor
     };
   };
   
@@ -82,6 +88,7 @@ const possum2d = () => {
   function setup() {
     game.setTitle("Possum 2D Game");
     game.createCanvas(800, 600);
+    game.setBackgroundColor("blue");
   }
   
   const sprite1 = { x: 50, y: 50, width: 50, height: 50, color: 'blue' };
