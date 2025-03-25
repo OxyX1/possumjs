@@ -63,9 +63,9 @@ const possum2d = () => {
         setupDone = true;
       }
   
-      // Clear the canvas with the background color
+      // Clear the canvas with the background color (this needs to be before rendering)
       ctx.fillStyle = backgroundColor;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillRect(0, 0, canvas.width, canvas.height); // Clear the canvas with the background color
   
       if (typeof draw === 'function') {
         draw(); // Continuously call draw() (or render in this case)
