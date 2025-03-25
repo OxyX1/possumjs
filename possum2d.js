@@ -30,8 +30,10 @@ const possum2d = () => {
 
     const setBackgroundColor = (_color) => {
       ctx.fillStyle = _color;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-    }
+      ctx.clearRect(0, 0, canvas.width, canvas.height); // Clears the entire canvas
+      ctx.fillRect(0, 0, canvas.width, canvas.height); // Fills the canvas with the specified color
+    };
+    
   
     // Function to render a sprite
     const render = (sprite) => {
