@@ -4,6 +4,7 @@ const possum2d = () => {
   document.body.appendChild(canvas);
 
   let fullscreen = false;
+  let backgroundColor = "white"; // Default background color
 
   const updateCanvasSize = () => {
       if (fullscreen) {
@@ -18,8 +19,8 @@ const possum2d = () => {
           canvas.width = width;
           canvas.height = height;
       } else {
-          updateCanvasSize(); // Ensure it's updated immediately
-          window.addEventListener("resize", updateCanvasSize); // Listen for window resizes
+          updateCanvasSize();
+          window.addEventListener("resize", updateCanvasSize);
       }
   };
 
@@ -28,8 +29,7 @@ const possum2d = () => {
   };
 
   const setBackgroundColor = (_color) => {
-      ctx.fillStyle = _color;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      backgroundColor = _color; // Store color for continuous use
   };
 
   const render = (sprite) => {
@@ -54,8 +54,11 @@ const possum2d = () => {
           setupDone = true;
       }
 
+      // Clear canvas and set background color every frame
+      ctx.fillStyle = backgroundColor;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
       if (typeof draw === 'function') {
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
           draw();
       }
 
@@ -71,3 +74,4 @@ const possum2d = () => {
       setBackgroundColor
   };
 };
+
