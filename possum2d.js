@@ -14,6 +14,8 @@ const possum2d = () => {
     const ctx = canvas.getContext('2d');
     document.body.appendChild(canvas);  // Ensure the canvas is appended to the DOM
   
+    let backgroundColor = 'white'; // Default background color
+  
     const createCanvas = (width, height, fullscreen = false) => {
       if (!fullscreen) {
         canvas.width = width;
@@ -47,6 +49,11 @@ const possum2d = () => {
       return false;
     };
   
+    // Function to set the background color
+    const setBackgroundColor = (color) => {
+      backgroundColor = color; // Set the background color
+    };
+  
     // Run the setup once and then enter the draw loop
     let setupDone = false;
   
@@ -55,6 +62,10 @@ const possum2d = () => {
         setup(); // Call setup() once
         setupDone = true;
       }
+  
+      // Clear the canvas with the background color
+      ctx.fillStyle = backgroundColor;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
   
       if (typeof draw === 'function') {
         draw(); // Continuously call draw() (or render in this case)
@@ -68,20 +79,20 @@ const possum2d = () => {
       setTitle,
       render,
       touching,
+      setBackgroundColor, // Added setBackgroundColor function
       run, // Added to start the loop
     };
   };
   
   // Usage Example
   
-
   /*
-  
   const game = possum2d();
   
   function setup() {
     game.setTitle("Possum 2D Game");
     game.createCanvas(800, 600);
+    game.setBackgroundColor('lightblue'); // Set background color
   }
   
   const sprite1 = { x: 50, y: 50, width: 50, height: 50, color: 'blue' };
@@ -91,8 +102,8 @@ const possum2d = () => {
     game.render(sprite1);
     game.render(sprite2);
   }
-
+  
   game.run();
-  
-  
   */
+  
+  
