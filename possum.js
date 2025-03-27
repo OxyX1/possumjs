@@ -1,3 +1,5 @@
+import { mat4 } from 'gl-matrix';
+
 class PossumJS {
     constructor() {
         this.gl = null; // WebGL context
@@ -13,10 +15,16 @@ class PossumJS {
     createCanvas(width, height) {
         const canvas = document.createElement('canvas');
         this.gl = canvas.getContext("webgl");
+        if (!this.gl) {
+            console.error("WebGL not supported in this browser.");
+            alert("WebGL not supported in this browser.");
+            return null;
+        }
         canvas.width = width;
         canvas.height = height;
         document.body.appendChild(canvas);
         this.gl.viewport(0, 0, canvas.width, canvas.height);
+        this.gl.enable(this.gl.DEPTH_TEST);
         return canvas;
     }
 
@@ -71,16 +79,21 @@ class PossumJS {
             x + half, y - half, z + half,
             x + half, y + half, z + half,
             x - half, y + half, z + half,
-            // Other faces go here...
+            // Back face
+            x - half, y - half, z - half,
+            x + half, y - half, z - half,
+            x + half, y + half, z - half,
+            x - half, y + half, z - half,
         ]);
     }
 
     createPyramidVertices(x, y, z, size) {
+        const half = size / 2;
         return new Float32Array([
             // Base
-            x - size, y, z - size,
-            x + size, y, z - size,
-            x, y + size, z
+            x - half, y - half, z - half,
+            x + half, y - half, z - half,
+            x, y + size, z,
         ]);
     }
 
@@ -121,7 +134,7 @@ class PossumJS {
 
         if (!this.gl.getProgramParameter(program, this.gl.LINK_STATUS)) {
             console.error("Program link failed:", this.gl.getProgramInfoLog(program));
-            alert(""Program link failed:", this.gl.getProgramInfoLog(program)");
+            alert("Program link failed: " + this.gl.getProgramInfoLog(program));
         }
 
         this.gl.useProgram(program);
@@ -156,7 +169,7 @@ class PossumJS {
         this.gl.compileShader(shader);
         if (!this.gl.getShaderParameter(shader, this.gl.COMPILE_STATUS)) {
             console.error("Shader compile failed:", this.gl.getShaderInfoLog(shader));
-            alert("Shader compile failed:", this.gl.getShaderInfoLog(shader));
+            alert("Shader compile failed: " + this.gl.getShaderInfoLog(shader));
             return null;
         }
         return shader;
