@@ -39,7 +39,7 @@ class PossumJS {
     createShape(shape, x, y, z, size) {
         if (!this.camera || !this.light) {
             console.error("Camera and light must be added before creating shapes.");
-            alert("Camera and light must be added before creating shapes.")
+            alert("Camera and light must be added before creating shapes.");
             return;
         }
 
