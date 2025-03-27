@@ -39,6 +39,7 @@ class PossumJS {
     createShape(shape, x, y, z, size) {
         if (!this.camera || !this.light) {
             console.error("Camera and light must be added before creating shapes.");
+            alert("Camera and light must be added before creating shapes.")
             return;
         }
 
@@ -53,6 +54,7 @@ class PossumJS {
                 break;
             default:
                 console.error(`Shape ${shape} not recognized.`);
+                alert(`Shape ${shape} not recognized.`);
                 return;
         }
 
@@ -119,6 +121,7 @@ class PossumJS {
 
         if (!this.gl.getProgramParameter(program, this.gl.LINK_STATUS)) {
             console.error("Program link failed:", this.gl.getProgramInfoLog(program));
+            alert(""Program link failed:", this.gl.getProgramInfoLog(program)");
         }
 
         this.gl.useProgram(program);
@@ -153,6 +156,7 @@ class PossumJS {
         this.gl.compileShader(shader);
         if (!this.gl.getShaderParameter(shader, this.gl.COMPILE_STATUS)) {
             console.error("Shader compile failed:", this.gl.getShaderInfoLog(shader));
+            alert("Shader compile failed:", this.gl.getShaderInfoLog(shader));
             return null;
         }
         return shader;
