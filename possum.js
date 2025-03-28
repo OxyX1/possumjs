@@ -5,28 +5,30 @@ const possumjs = {
         const canvas = document.querySelector(element);
   
         if (element === "#workspace") {
-          // Initialize a Three.js scene
-          const scene = new THREE.Scene();
+          // Initialize a Babylon.js engine and scene
+          const engine = new BABYLON.Engine(canvas, true);
+          const scene = new BABYLON.Scene(engine);
           canvas.id = id;
           canvas.style.border = "1px solid black";
           canvas.width = window.innerWidth;
           canvas.height = window.innerHeight;
   
-          const renderer = new THREE.WebGLRenderer({ canvas });
-          renderer.setSize(window.innerWidth, window.innerHeight);
-  
           // Create a camera and add it to the scene
-          const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-          camera.position.z = 5;
+          const camera = new BABYLON.ArcRotateCamera("camera1", Math.PI / 2, Math.PI / 2, 10, BABYLON.Vector3.Zero(), scene);
+          camera.attachControl(canvas, true);
   
-          // Store scene, camera, and renderer for easy access
+          // Create a light
+          const light = new BABYLON.HemisphericLight("light1", BABYLON.Vector3.Up(), scene);
+          light.intensity = 0.7;
+  
+          // Store scene, camera, and engine for easy access
           canvas.scene = scene;
           canvas.camera = camera;
-          canvas.renderer = renderer;
+          canvas.engine = engine;
         }
   
         if (element === "#scene") {
-          // Create and add a new scene to a parent scene
+          // Create and add a new scene to a parent scene (in Babylon.js this is not typical, we create one scene per canvas)
           const sceneElement = document.createElement("div");
           sceneElement.id = id;
           sceneElement.style.position = "absolute";
@@ -36,14 +38,12 @@ const possumjs = {
         }
   
         if (element === "#cube") {
-          const geometry = new THREE.BoxGeometry();
-          const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-          const cube = new THREE.Mesh(geometry, material);
+          // Create a cube with Babylon.js
+          const cube = BABYLON.MeshBuilder.CreateBox(id, {}, canvas.scene);
           cube.name = id;
   
           // Add cube to the scene
-          const scene = document.getElementById(parentId).scene;
-          scene.add(cube);
+          canvas.scene.addMesh(cube);
         }
   
         if (element === "#PerspectiveCamera") {
@@ -51,7 +51,18 @@ const possumjs = {
         }
   
         if (element === "#FreeCamera") {
-          // Free camera setup can be added here
+          // Free camera setup can be added here (though Babylon handles this with ArcRotateCamera, as shown above)
+        }
+      },
+  
+      // Load a texture and apply it to an object
+      loadTexture: function (textureName, objectId) {
+        const texture = new BABYLON.Texture(textureName, canvas.scene);
+  
+        const object = canvas.scene.getMeshByName(objectId);
+        if (object) {
+          object.material = new BABYLON.StandardMaterial("material", canvas.scene);
+          object.material.diffuseTexture = texture;
         }
       }
     },
@@ -59,23 +70,23 @@ const possumjs = {
     // Transformations (position, size, rotation)
     transform: {
       position: function (id, vector3, scene) {
-        const object = scene.getObjectByName(id);
+        const object = scene.getMeshByName(id);
         if (object) {
-          object.position.set(vector3.x, vector3.y, vector3.z);
+          object.position = new BABYLON.Vector3(vector3.x, vector3.y, vector3.z);
         }
       },
   
       size: function (id, vector3, scene) {
-        const object = scene.getObjectByName(id);
+        const object = scene.getMeshByName(id);
         if (object) {
-          object.scale.set(vector3.x, vector3.y, vector3.z);
+          object.scaling = new BABYLON.Vector3(vector3.x, vector3.y, vector3.z);
         }
       },
   
       rotation: function (id, rotationVector, scene) {
-        const object = scene.getObjectByName(id);
+        const object = scene.getMeshByName(id);
         if (object) {
-          object.rotation.set(rotationVector.x, rotationVector.y, rotationVector.z);
+          object.rotation = new BABYLON.Vector3(rotationVector.x, rotationVector.y, rotationVector.z);
         }
       }
     },
@@ -85,18 +96,18 @@ const possumjs = {
       return { x, y, z };
     },
   
-    // Render loop
+    // Render loop (Babylon handles this internally with a `runRenderLoop` method)
     render: function (canvas) {
+      const engine = canvas.engine;
       const scene = canvas.scene;
-      const camera = canvas.camera;
-      const renderer = canvas.renderer;
   
-      function animate() {
-        requestAnimationFrame(animate);
-        renderer.render(scene, camera);
-      }
+      engine.runRenderLoop(() => {
+        scene.render();
+      });
   
-      animate();
+      window.addEventListener("resize", () => {
+        engine.resize();
+      });
     }
   };
   
