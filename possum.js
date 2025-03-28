@@ -36,6 +36,20 @@ class THREEW {
         return this.renderer;
     }
 
+    // Add FPS controls for movement
+    addFPSControls() {
+        // Assuming possum.js has basic FPS controls
+        this.controls = new Possum.CameraControls(this.camera, this.renderer.domElement);
+        return this.controls;
+    }
+
+    // Render loop to update the scene
+    animate() {
+        requestAnimationFrame(() => this.animate());
+        this.controls.update();  // Update controls
+        this.renderer.render(this.scene, this.camera);
+    }
+
     RenderPlane(posx, posy, sizex, sizey, rotx, roty, color) {
         const planeGeometry = new THREE.PlaneGeometry(sizex, sizey);
         const planeMaterial = new THREE.MeshBasicMaterial({ color: color, side: THREE.DoubleSide });
