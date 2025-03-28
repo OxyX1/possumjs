@@ -59,9 +59,26 @@ class possumjs {
         cube.position.z = posz;
     }
 
-    createVertex(ID, posx, posy, posz, sizex, sizey, sizez, scene) {
+    createVertex(ID, positions, scene) {
+        // Positions should be an array of vectors, e.g., [{x: 0, y: 0, z: 0}, {x: 1, y: 1, z: 1}]
+        const vertexData = new BABYLON.VertexData();
         
+        // Flatten positions into an array of floats for the vertex positions
+        const flatPositions = positions.reduce((acc, pos) => {
+            acc.push(pos.x, pos.y, pos.z);
+            return acc;
+        }, []);
+    
+        // Set the positions for the vertex
+        vertexData.positions = flatPositions;
+    
+        // Create a custom mesh using the vertex data
+        const customMesh = new BABYLON.Mesh(ID, scene);
+        vertexData.applyToMesh(customMesh, true);
+    
+        return customMesh;
     }
+    
 
     returnScene() {
         return this.scene;
