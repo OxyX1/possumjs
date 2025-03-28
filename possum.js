@@ -43,7 +43,6 @@ class possumjs {
         sphere.position.y = posy;
         sphere.position.x = posx;
         sphere.position.z = posz;
-        return sphere;
     }
 
     createPlane(ID, posx, posy, posz, width, height, scene) {
@@ -51,7 +50,6 @@ class possumjs {
         ground.position.x = posx;
         ground.position.y = posy;
         ground.position.z = posz;
-        return ground;
     }
 
     createCube(ID, posx, posy, posz, sizex, sizey, sizez, scene) {
@@ -59,66 +57,13 @@ class possumjs {
         cube.position.x = posx;
         cube.position.y = posy;
         cube.position.z = posz;
-        return cube;
     }
 
-    createEntity(ID, meshType, posx, posy, posz, size, scene) {
-        let mesh;
-
-        // Based on meshType, create the appropriate shape
-        switch (meshType) {
-            case "sphere":
-                mesh = this.createSphere(ID, posx, posy, posz, size.diameter, size.segments, scene);
-                break;
-            case "cube":
-                mesh = this.createCube(ID, posx, posy, posz, size.sizex, size.sizey, size.sizez, scene);
-                break;
-            case "plane":
-                mesh = this.createPlane(ID, posx, posy, posz, size.width, size.height, scene);
-                break;
-            default:
-                console.error("Unsupported mesh type");
-                return null;
-        }
-
-        return new Entity(mesh);
-    }
-
-    loadTexture(mesh, textureURL) {
-        const material = new BABYLON.StandardMaterial("material_" + mesh.id, this.scene);
-        material.diffuseTexture = new BABYLON.Texture(textureURL, this.scene);
-        mesh.material = material;
+    createVertex(ID, posx, posy, posz, sizex, sizey, sizez, scene) {
+        
     }
 
     returnScene() {
         return this.scene;
-    }
-}
-
-// Entity class to handle position, rotation, and scaling
-class Entity {
-    constructor(mesh) {
-        this.mesh = mesh;
-        this.position = mesh.position;
-        this.rotation = mesh.rotation;
-        this.scaling = mesh.scaling;
-    }
-
-    setPosition(x, y, z) {
-        this.position.x = x;
-        this.position.y = y;
-        this.position.z = z;
-    }
-
-    setRotation(x, y, z) {
-        this.rotation.x = x;
-        this.rotation.y = y;
-        this.rotation.z = z;
-    }
-
-    setScale(x, y, z) {
-        this.scaling.x = x;
-        this.scaling.y = y;
-        this.scaling.z = z;
     }
 }
