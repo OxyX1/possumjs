@@ -1,177 +1,78 @@
-import { mat4 } from 'gl-matrix';
+/*
 
-class PossumJS {
+WARNING THIS IS A THREE WRAPPER. ALL CREDITS GO TO THREE.js
+
+reasons why I made this package.
+
+for quick, simple, and easy syntax.
+and for retarded people, like me :)
+
+*/
+
+class THREEW {
     constructor() {
-        this.gl = null; // WebGL context
+        this.scene = null;
         this.camera = null;
-        this.light = null;
-
-        // Graphics namespace
-        this.graphics = {
-            create: (shape, x, y, z, size) => this.createShape(shape, x, y, z, size)
-        };
+        this.renderer = null;
     }
 
-    createCanvas(width, height) {
-        const canvas = document.createElement('canvas');
-        this.gl = canvas.getContext("webgl");
-        if (!this.gl) {
-            console.error("WebGL not supported in this browser.");
-            alert("WebGL not supported in this browser.");
-            return null;
-        }
-        canvas.width = width;
-        canvas.height = height;
-        document.body.appendChild(canvas);
-        this.gl.viewport(0, 0, canvas.width, canvas.height);
-        this.gl.enable(this.gl.DEPTH_TEST);
-        return canvas;
+    sceneInit(width, height, background) {
+        this.scene = new THREE.Scene();
+        this.scene.background = new THREE.Color(background);
+        return this.scene;
     }
 
-    setBackground(r, g, b, a) {
-        this.gl.clearColor(r, g, b, a);
-        this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
+    PerspectiveCamera(FOV, ASPECT_RATIO, CLIPPING_RANGE, FAR_CLIPPING_RANGE, POSX, POSY, POSZ) {
+        this.camera = new THREE.PerspectiveCamera(FOV, ASPECT_RATIO, CLIPPING_RANGE, FAR_CLIPPING_RANGE);
+        this.camera.position.set(POSX, POSY, POSZ);
+        return this.camera;
     }
 
-    addCamera(fov, aspect, near, far, position) {
-        this.camera = {
-            projectionMatrix: mat4.perspective(mat4.create(), fov, aspect, near, far),
-            viewMatrix: mat4.lookAt(mat4.create(), position, [0, 0, 0], [0, 1, 0])
-        };
+    Renderer(Width, Height, setClearColor, shadowMap) {
+        this.renderer = new THREE.WebGLRenderer();
+        this.renderer.setSize(Width, Height);
+        this.renderer.setClearColor(setClearColor);
+        this.renderer.shadowMap.enabled = shadowMap;
+        return this.renderer;
     }
 
-    addLight(position, color) {
-        this.light = { position, color };
+    RenderPlane(posx, posy, sizex, sizey, rotx, roty, color) {
+        const planeGeometry = new THREE.PlaneGeometry(sizex, sizey);
+        const planeMaterial = new THREE.MeshBasicMaterial({ color: color, side: THREE.DoubleSide });
+        const baseplate = new THREE.Mesh(planeGeometry, planeMaterial);
+        baseplate.position.set(posx, posy, 0);
+        baseplate.rotation.set(rotx || 0, roty || 0, 0);
+        this.scene.add(baseplate);
+        return baseplate;
     }
 
-    createShape(shape, x, y, z, size) {
-        if (!this.camera || !this.light) {
-            console.error("Camera and light must be added before creating shapes.");
-            alert("Camera and light must be added before creating shapes.");
-            return;
-        }
-
-        let vertices;
-
-        switch (shape) {
-            case "#cube":
-                vertices = this.createCubeVertices(x, y, z, size);
-                break;
-            case "#pyramid":
-                vertices = this.createPyramidVertices(x, y, z, size);
-                break;
-            default:
-                console.error(`Shape ${shape} not recognized.`);
-                alert(`Shape ${shape} not recognized.`);
-                return;
-        }
-
-        // Bind and render with lighting
-        const program = this.createShaderProgram();
-        this.bindBuffersAndDraw(vertices, program);
+    RenderCube(posx, posy, posz, sizex, sizey, sizez, rotx, roty, rotz, color) {
+        const cubeGeometry = new THREE.BoxGeometry(sizex, sizey, sizez);
+        const cubeMaterial = new THREE.MeshBasicMaterial({ color: color, side: THREE.DoubleSide });
+        const cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+        cube.position.set(posx, posy, posz);
+        cube.rotation.set(rotx || 0, roty || 0, rotz || 0);
+        this.scene.add(cube);
+        return cube;
     }
 
-    createCubeVertices(x, y, z, size) {
-        const half = size / 2;
-        return new Float32Array([
-            // Front face
-            x - half, y - half, z + half,
-            x + half, y - half, z + half,
-            x + half, y + half, z + half,
-            x - half, y + half, z + half,
-            // Back face
-            x - half, y - half, z - half,
-            x + half, y - half, z - half,
-            x + half, y + half, z - half,
-            x - half, y + half, z - half,
-        ]);
+    RenderCylinder(posx, posy, posz, radiusTop, radiusBottom, height, radialSegments, rotx, roty, rotz, color) {
+        const cylinderGeometry = new THREE.CylinderGeometry(radiusTop, radiusBottom, height, radialSegments);
+        const cylinderMaterial = new THREE.MeshBasicMaterial({ color: color, side: THREE.DoubleSide });
+        const cylinder = new THREE.Mesh(cylinderGeometry, cylinderMaterial);
+        cylinder.position.set(posx, posy, posz);
+        cylinder.rotation.set(rotx || 0, roty || 0, rotz || 0);
+        this.scene.add(cylinder);
+        return cylinder;
     }
 
-    createPyramidVertices(x, y, z, size) {
-        const half = size / 2;
-        return new Float32Array([
-            // Base
-            x - half, y - half, z - half,
-            x + half, y - half, z - half,
-            x, y + size, z,
-        ]);
-    }
-
-    createShaderProgram() {
-        const vertexShaderSource = `
-            attribute vec4 position;
-            uniform mat4 modelViewMatrix;
-            uniform mat4 projectionMatrix;
-            uniform vec3 lightPosition;
-            varying vec3 vLighting;
-
-            void main() {
-                gl_Position = projectionMatrix * modelViewMatrix * position;
-
-                // Simple lighting calculations
-                vec3 lightDirection = normalize(lightPosition - position.xyz);
-                float brightness = max(dot(vec3(0.0, 0.0, 1.0), lightDirection), 0.0);
-                vLighting = vec3(1.0, 1.0, 1.0) * brightness;
-            }
-        `;
-
-        const fragmentShaderSource = `
-            precision mediump float;
-            varying vec3 vLighting;
-
-            void main() {
-                gl_FragColor = vec4(vLighting, 1.0);
-            }
-        `;
-
-        const vertexShader = this.createShader(this.gl.VERTEX_SHADER, vertexShaderSource);
-        const fragmentShader = this.createShader(this.gl.FRAGMENT_SHADER, fragmentShaderSource);
-
-        const program = this.gl.createProgram();
-        this.gl.attachShader(program, vertexShader);
-        this.gl.attachShader(program, fragmentShader);
-        this.gl.linkProgram(program);
-
-        if (!this.gl.getProgramParameter(program, this.gl.LINK_STATUS)) {
-            console.error("Program link failed:", this.gl.getProgramInfoLog(program));
-            alert("Program link failed: " + this.gl.getProgramInfoLog(program));
-        }
-
-        this.gl.useProgram(program);
-        return program;
-    }
-
-    bindBuffersAndDraw(vertices, program) {
-        const vertexBuffer = this.gl.createBuffer();
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, vertexBuffer);
-        this.gl.bufferData(this.gl.ARRAY_BUFFER, vertices, this.gl.STATIC_DRAW);
-
-        const positionLocation = this.gl.getAttribLocation(program, "position");
-        this.gl.enableVertexAttribArray(positionLocation);
-        this.gl.vertexAttribPointer(positionLocation, 3, this.gl.FLOAT, false, 0, 0);
-
-        const lightPositionLocation = this.gl.getUniformLocation(program, "lightPosition");
-        this.gl.uniform3fv(lightPositionLocation, this.light.position);
-
-        const projectionMatrixLocation = this.gl.getUniformLocation(program, "projectionMatrix");
-        this.gl.uniformMatrix4fv(projectionMatrixLocation, false, this.camera.projectionMatrix);
-
-        const modelViewMatrixLocation = this.gl.getUniformLocation(program, "modelViewMatrix");
-        this.gl.uniformMatrix4fv(modelViewMatrixLocation, false, this.camera.viewMatrix);
-
-        this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
-        this.gl.drawArrays(this.gl.TRIANGLES, 0, vertices.length / 3);
-    }
-
-    createShader(type, source) {
-        const shader = this.gl.createShader(type);
-        this.gl.shaderSource(shader, source);
-        this.gl.compileShader(shader);
-        if (!this.gl.getShaderParameter(shader, this.gl.COMPILE_STATUS)) {
-            console.error("Shader compile failed:", this.gl.getShaderInfoLog(shader));
-            alert("Shader compile failed: " + this.gl.getShaderInfoLog(shader));
-            return null;
-        }
-        return shader;
+    RenderSphere(posx, posy, posz, radius, widthSegments, heightSegments, rotx, roty, rotz, color) {
+        const sphereGeometry = new THREE.SphereGeometry(radius, widthSegments, heightSegments);
+        const sphereMaterial = new THREE.MeshBasicMaterial({ color: color, side: THREE.DoubleSide });
+        const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+        sphere.position.set(posx, posy, posz);
+        sphere.rotation.set(rotx || 0, roty || 0, rotz || 0);
+        this.scene.add(sphere);
+        return sphere;
     }
 }
