@@ -1,92 +1,66 @@
-/*
-
-WARNING THIS IS A THREE WRAPPER. ALL CREDITS GO TO THREE.js
-
-reasons why I made this package.
-
-for quick, simple, and easy syntax.
-and for retarded people, like me :)
-
-*/
-
-class THREEW {
+class babylonwrapper {
     constructor() {
-        this.scene = null;
-        this.camera = null;
-        this.renderer = null;
+        // Check if BABYLON is already loaded globally from the CDN
+        if (typeof BABYLON === 'undefined') {
+            this.loadBabylonJS();
+        } else {
+            this.init();
+        }
     }
 
-    sceneInit(width, height, background) {
-        this.scene = new THREE.Scene();
-        this.scene.background = new THREE.Color(background);
+    // Dynamically load Babylon.js if not loaded
+    loadBabylonJS() {
+        const script = document.createElement('script');
+        script.src = "https://cdn.babylonjs.com/babylon.js";
+        script.onload = () => {
+            this.init();  // Initialize once the script is loaded
+        };
+        document.head.appendChild(script);
+    }
+
+    init() {
+        this.canvas = document.getElementById("renderCanvas");
+        this.engine = new BABYLON.Engine(this.canvas, true);  // Initialize Babylon.js engine
+        this.scene = this.InitScene();  // Initialize the scene
+    }
+
+    InitScene() {
+        return new BABYLON.Scene(this.engine);
+    }
+
+    createCamera(ID, posx, posy, posz, scene) {
+        const camera = new BABYLON.FreeCamera(ID, new BABYLON.Vector3(posx, posy, posz), scene);
+        camera.setTarget(BABYLON.Vector3.Zero());
+        camera.attachControl(this.canvas, true);
+    }
+
+    createLight(ID, posx, posy, posz, scene) {
+        var light = new BABYLON.HemisphericLight(ID, new BABYLON.Vector3(posx, posy, posz), scene);
+        light.intensity = 0.7;
+    }
+
+    createSphere(ID, posx, posy, posz, diameter, segments, scene) {
+        var sphere = BABYLON.MeshBuilder.CreateSphere(ID, { diameter: diameter, segments: segments }, scene);
+        sphere.position.y = posy;
+        sphere.position.x = posx;
+        sphere.position.z = posz;
+    }
+
+    createPlane(ID, posx, posy, posz, width, height, scene) {
+        var ground = BABYLON.MeshBuilder.CreateGround(ID, { width: width, height: height }, scene);
+        ground.position.x = posx;
+        ground.position.y = posy;
+        ground.position.z = posz;
+    }
+
+    createCube(ID, posx, posy, posz, sizex, sizey, sizez, scene) {
+        var cube = BABYLON.MeshBuilder.CreateBox(ID, { width: sizex, height: sizey, depth: sizez }, scene);
+        cube.position.x = posx;
+        cube.position.y = posy;
+        cube.position.z = posz;
+    }
+
+    returnScene() {
         return this.scene;
-    }
-
-    PerspectiveCamera(FOV, ASPECT_RATIO, CLIPPING_RANGE, FAR_CLIPPING_RANGE, POSX, POSY, POSZ) {
-        this.camera = new THREE.PerspectiveCamera(FOV, ASPECT_RATIO, CLIPPING_RANGE, FAR_CLIPPING_RANGE);
-        this.camera.position.set(POSX, POSY, POSZ);
-        return this.camera;
-    }
-
-    Renderer(Width, Height, setClearColor, shadowMap) {
-        this.renderer = new THREE.WebGLRenderer();
-        this.renderer.setSize(Width, Height);
-        this.renderer.setClearColor(setClearColor);
-        this.renderer.shadowMap.enabled = shadowMap;
-        return this.renderer;
-    }
-
-    // Add FPS controls for movement
-    addFPSControls() {
-        // Assuming possum.js has basic FPS controls
-        this.controls = new Possum.CameraControls(this.camera, this.renderer.domElement);
-        return this.controls;
-    }
-
-    // Render loop to update the scene
-    animate() {
-        requestAnimationFrame(() => this.animate());
-        this.controls.update();  // Update controls
-        this.renderer.render(this.scene, this.camera);
-    }
-
-    RenderPlane(posx, posy, sizex, sizey, rotx, roty, color) {
-        const planeGeometry = new THREE.PlaneGeometry(sizex, sizey);
-        const planeMaterial = new THREE.MeshBasicMaterial({ color: color, side: THREE.DoubleSide });
-        const baseplate = new THREE.Mesh(planeGeometry, planeMaterial);
-        baseplate.position.set(posx, posy, 0);
-        baseplate.rotation.set(rotx || 0, roty || 0, 0);
-        this.scene.add(baseplate);
-        return baseplate;
-    }
-
-    RenderCube(posx, posy, posz, sizex, sizey, sizez, rotx, roty, rotz, color) {
-        const cubeGeometry = new THREE.BoxGeometry(sizex, sizey, sizez);
-        const cubeMaterial = new THREE.MeshBasicMaterial({ color: color, side: THREE.DoubleSide });
-        const cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
-        cube.position.set(posx, posy, posz);
-        cube.rotation.set(rotx || 0, roty || 0, rotz || 0);
-        this.scene.add(cube);
-        return cube;
-    }
-
-    RenderCylinder(posx, posy, posz, radiusTop, radiusBottom, height, radialSegments, rotx, roty, rotz, color) {
-        const cylinderGeometry = new THREE.CylinderGeometry(radiusTop, radiusBottom, height, radialSegments);
-        const cylinderMaterial = new THREE.MeshBasicMaterial({ color: color, side: THREE.DoubleSide });
-        const cylinder = new THREE.Mesh(cylinderGeometry, cylinderMaterial);
-        cylinder.position.set(posx, posy, posz);
-        cylinder.rotation.set(rotx || 0, roty || 0, rotz || 0);
-        this.scene.add(cylinder);
-        return cylinder;
-    }
-
-    RenderSphere(posx, posy, posz, radius, widthSegments, heightSegments, rotx, roty, rotz, color) {
-        const sphereGeometry = new THREE.SphereGeometry(radius, widthSegments, heightSegments);
-        const sphereMaterial = new THREE.MeshBasicMaterial({ color: color, side: THREE.DoubleSide });
-        const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
-        sphere.position.set(posx, posy, posz);
-        sphere.rotation.set(rotx || 0, roty || 0, rotz || 0);
-        this.scene.add(sphere);
-        return sphere;
     }
 }
