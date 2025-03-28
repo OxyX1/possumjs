@@ -1,27 +1,26 @@
-class babylonwrapper {
+class possumjs {
     constructor() {
         // Check if BABYLON is already loaded globally from the CDN
         if (typeof BABYLON === 'undefined') {
-            this.loadBabylonJS();
+            this.loadpossumjs();
         } else {
             this.init();
         }
     }
 
-    // Dynamically load Babylon.js if not loaded
-    loadBabylonJS() {
+    loadpossumjs() {
         const script = document.createElement('script');
         script.src = "https://cdn.babylonjs.com/babylon.js";
         script.onload = () => {
-            this.init();  // Initialize once the script is loaded
+            this.init();
         };
         document.head.appendChild(script);
     }
 
     init() {
         this.canvas = document.getElementById("renderCanvas");
-        this.engine = new BABYLON.Engine(this.canvas, true);  // Initialize Babylon.js engine
-        this.scene = this.InitScene();  // Initialize the scene
+        this.engine = new BABYLON.Engine(this.canvas, true);
+        this.scene = this.InitScene();
     }
 
     InitScene() {
@@ -44,6 +43,7 @@ class babylonwrapper {
         sphere.position.y = posy;
         sphere.position.x = posx;
         sphere.position.z = posz;
+        return sphere;
     }
 
     createPlane(ID, posx, posy, posz, width, height, scene) {
@@ -51,6 +51,7 @@ class babylonwrapper {
         ground.position.x = posx;
         ground.position.y = posy;
         ground.position.z = posz;
+        return ground;
     }
 
     createCube(ID, posx, posy, posz, sizex, sizey, sizez, scene) {
@@ -58,9 +59,66 @@ class babylonwrapper {
         cube.position.x = posx;
         cube.position.y = posy;
         cube.position.z = posz;
+        return cube;
+    }
+
+    createEntity(ID, meshType, posx, posy, posz, size, scene) {
+        let mesh;
+
+        // Based on meshType, create the appropriate shape
+        switch (meshType) {
+            case "sphere":
+                mesh = this.createSphere(ID, posx, posy, posz, size.diameter, size.segments, scene);
+                break;
+            case "cube":
+                mesh = this.createCube(ID, posx, posy, posz, size.sizex, size.sizey, size.sizez, scene);
+                break;
+            case "plane":
+                mesh = this.createPlane(ID, posx, posy, posz, size.width, size.height, scene);
+                break;
+            default:
+                console.error("Unsupported mesh type");
+                return null;
+        }
+
+        return new Entity(mesh);
+    }
+
+    loadTexture(mesh, textureURL) {
+        const material = new BABYLON.StandardMaterial("material_" + mesh.id, this.scene);
+        material.diffuseTexture = new BABYLON.Texture(textureURL, this.scene);
+        mesh.material = material;
     }
 
     returnScene() {
         return this.scene;
+    }
+}
+
+// Entity class to handle position, rotation, and scaling
+class Entity {
+    constructor(mesh) {
+        this.mesh = mesh;
+        this.position = mesh.position;
+        this.rotation = mesh.rotation;
+        this.scaling = mesh.scaling;
+    }
+
+    setPosition(x, y, z) {
+        this.position.x = x;
+        this.position.y = y;
+        this.position.z = z;
+    }
+
+    setRotation(x, y, z) {
+        this.rotation.x = x;
+        this.rotation.y = y;
+        this.rotation.z = z;
+    }
+
+    setScale(x, y, z) {
+        this.scaling.x = x;
+        this.scaling.y = y;
+        this.scaling.z = z;
     }
 }
